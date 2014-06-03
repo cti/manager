@@ -16,8 +16,7 @@ return array(
 
     'Cti\Core\Application\Generator' => array(
         'modules' => array(
-            'direct' => 'Cti\Direct\Module',
-            'auth'   =>  'Module\Auth'
+            'direct' => 'Cti\Direct\Module'
         )
     )
 );
