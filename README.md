@@ -1,10 +1,10 @@
-# Cti Application skeleton
-[![Latest Stable Version](https://poser.pugx.org/cti/app/v/stable.png)](https://packagist.org/packages/cti/app)
-[![Total Downloads](https://poser.pugx.org/cti/app/downloads.png)](https://packagist.org/packages/cti/app)
-[![License](https://poser.pugx.org/cti/app/license.png)](https://packagist.org/packages/cti/app)
+# Core manager
+[![Latest Stable Version](https://poser.pugx.org/cti/manager/v/stable.png)](https://packagist.org/packages/cti/manager)
+[![Total Downloads](https://poser.pugx.org/cti/manager/downloads.png)](https://packagist.org/packages/cti/manager)
+[![License](https://poser.pugx.org/cti/manager/license.png)](https://packagist.org/packages/cti/manager)
 
 Start with this commands:
 
-    composer create-project cti/app project_name
-    cd project_name
+    composer create-project cti/manager
+    cd manager
     bin/server
