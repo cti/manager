@@ -6,18 +6,41 @@ use Build\Application;
 
 class Project
 {
-	function getList() {
-        return array(
-            'data' => array(
-                array(
-                    'nick' => 'test',
-                    'path' => __DIR__
-                )
-            )
-        );
+    /**
+     * @inject
+     * @var \Build\Application
+     */
+    protected $application;
+
+    /**
+     * @inject
+     * @var \Project\Manager
+     */
+    protected $manager;
+
+    function getList()
+    {
+        return $this->manager->getList();
 	}
 
-	function create() {
+    public function add($data)
+    {
+        $path = dirname($this->application->getProject()->getPath(''))
+            . DIRECTORY_SEPARATOR . $data->path;
+        if (!$this->manager->validProject($path)) {
+            throw new \Exception("No valid project in path $path");
+        }
+        return $this->manager->addProject($data->nick, $path);
+    }
 
-	}
+    public function getModels($projectNick)
+    {
+        $project = $this->manager->getProject($projectNick);
+        $models = $project->getModels();
+        $list = array();
+        foreach($models as $model) {
+            $list[] = $models->getName();
+        }
+        return $list;
+    }
 }

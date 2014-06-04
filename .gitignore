@@ -3,3 +3,4 @@
 /build/
 /composer.lock
 /resources/php/local.config.php
+/resources/php/projects.php

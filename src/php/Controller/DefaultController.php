@@ -3,6 +3,7 @@
 namespace Controller;
 
 use Build\Application;
+use Cti\Core\Module\Web;
 
 class DefaultController
 {
@@ -18,7 +19,7 @@ class DefaultController
 
 
     /**
-     * if no method was found you can process request by yourseld
+     * if no method was found you can process request by yourself
      * chain is url pieces delimited by /
      * you can inject any parameter (thanks to di)
      * @param Web $web

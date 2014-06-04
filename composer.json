@@ -15,7 +15,8 @@
             "Command\\" : "src/php/",
             "Controller\\" : "src/php/",
             "Direct\\" : "src/php/",
-            "Module\\" : "src/php/"
+            "Module\\" : "src/php/",
+            "Project\\" : "src/php/"
         }
     },    
     "authors": [

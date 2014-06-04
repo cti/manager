@@ -12,15 +12,35 @@ Ext.define 'Manager.ProjectList',
         dataIndex:'path'
         header:'Path'
         width:350
-    ]
+    ,
+        menuDisabled: true
+        width: 40
+        xtype: 'actioncolumn'
+        items: [
+            iconCls: 'open-project-col'
+            tooltip: '123'
+            handler: (grid, rowIndex) ->
+                record = grid.getStore().getAt rowIndex
+                grid.ownerCt.openProject record
 
-    tools:[
-        id:'plus'
-        handler:->
-            console.log arguments
+
+        ]
     ]
 
     initComponent:->
-        @callParent arguments
+        @tools = [
+            id:'plus'
+            handler:=>
+                Ext.create 'Manager.ProjectList.Form',
+                    projectList: this
+        ]
 
-        Project.getList (response) => @store.loadData response.data
+        @callParent arguments
+        @load()
+
+    load: ->
+        Project.getList (response) => @store.loadData response
+
+    openProject: (project) ->
+        mngr.app.setContent Ext.create 'Manager.Project.Card',
+            project: project
