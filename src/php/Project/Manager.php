@@ -15,8 +15,14 @@ class Manager
      */
     protected $configurationPath;
 
+    /**
+     * @var \Build\Application
+     */
+    protected $application;
+
     public function __construct(Application $application)
     {
+        $this->application = $application;
         $this->configurationPath = $application->getProject()->getPath('resources php projects.php');
         if (file_exists($this->configurationPath)) {
             $this->configuration = include($this->configurationPath);
@@ -50,6 +56,10 @@ class Manager
         if (!isset($this->configuration[$nick])) {
             throw new \Exception("No project $nick found");
         }
+        $project = $this->application->getManager()->create('\Project\Project', array(
+            'configuration' => $this->configuration[$nick],
+        ));
+        return $project;
 
     }
 } 

@@ -10,5 +10,8 @@ Ext.define 'Manager.Project.Models',
             header: "Name"
         ]
         @callParent arguments
+        @load()
 
     load: ->
+        Project.getModels @card.project.data.nick, (models) =>
+            @store.loadData models

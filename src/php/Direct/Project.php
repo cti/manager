@@ -38,8 +38,10 @@ class Project
         $project = $this->manager->getProject($projectNick);
         $models = $project->getModels();
         $list = array();
-        foreach($models as $model) {
-            $list[] = $models->getName();
+        foreach(array_keys($models) as $name) {
+            $list[] = array(
+                'name' => $name
+            );
         }
         return $list;
     }
