@@ -3,7 +3,36 @@ Ext.define('Manager.Project.ModelEditor.Editor', {
   extend: 'Ext.grid.Panel',
   height: 400,
   width: 800,
+  xtype: 'cell-editing',
   initComponent: function() {
+    var _this = this;
+    this.cellEditing = new Ext.grid.plugin.CellEditing({
+      clicksToEdit: 1
+    });
+    this.cellEditing.on('edit', this.onEditComplete, this);
+    this.plugins = [this.cellEditing];
+    this.dockedItems = [
+      {
+        xtype: 'toolbar',
+        items: [
+          {
+            text: 'Add fiesld',
+            iconCls: 'icon-add',
+            handler: function() {
+              return _this.store.add({});
+            }
+          }, {
+            text: 'Delete field',
+            iconCls: 'icon-remove',
+            disabled: true
+          }, '->', {
+            text: 'Save',
+            iconCls: 'icon-save',
+            disabled: true
+          }
+        ]
+      }
+    ];
     this.store = Ext.create('Ext.data.Store', {
       fields: ['name', 'comment'],
       proxy: 'memory'
@@ -12,17 +41,37 @@ Ext.define('Manager.Project.ModelEditor.Editor', {
       {
         dataIndex: 'name',
         header: 'Name',
-        width: 150
-      }, {
-        header: 'PK',
-        width: 40,
-        renderer: function(v, m, r) {
-          if (Ext.Array.indexOf(this.schemaModel.pk, r.data.name) !== -1) {
-            return 'X';
-          } else {
-            return "";
-          }
+        width: 150,
+        editor: {
+          allowBlank: false
         }
+      }, {
+        dataIndex: 'type',
+        header: 'Type',
+        editor: new Ext.form.field.ComboBox({
+          typeAhead: true,
+          triggerAction: 'all',
+          editable: false,
+          store: [['integer', 'integer'], ['string', 'string'], ['datetime', 'datetime']]
+        })
+      }, {
+        xtype: 'checkcolumn',
+        header: 'PK',
+        dataIndex: 'pk',
+        width: 50
+      }, {
+        xtype: 'checkcolumn',
+        header: 'NotNull',
+        dataIndex: 'required',
+        width: 100
+      }, {
+        header: "FK",
+        dataIndex: 'fk',
+        width: 50
+      }, {
+        header: 'Comment',
+        flex: 1,
+        dataIndex: 'comment'
       }
     ];
     return this.callParent(arguments);
@@ -36,9 +85,13 @@ Ext.define('Manager.Project.ModelEditor.Editor', {
     for (name in _ref) {
       property = _ref[name];
       property.name = name;
+      property.pk = Ext.Array.indexOf(model.pk, name) !== -1;
       fields.push(property);
     }
     return this.store.loadData(fields);
+  },
+  onEditComplete: function(editor, context) {
+    return this.getView().focusRow(context.record);
   }
 });
 

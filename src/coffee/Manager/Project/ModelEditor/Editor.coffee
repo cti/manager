@@ -2,7 +2,31 @@ Ext.define 'Manager.Project.ModelEditor.Editor',
     extend: 'Ext.grid.Panel'
     height: 400
     width: 800
+    xtype: 'cell-editing'
     initComponent: ->
+        @cellEditing  = new Ext.grid.plugin.CellEditing
+            clicksToEdit: 1
+        @cellEditing.on 'edit', @onEditComplete, this
+        @plugins = [@cellEditing]
+        @dockedItems = [
+            xtype: 'toolbar'
+            items: [
+                text: 'Add fiesld'
+                iconCls: 'icon-add'
+                handler: =>
+                    @store.add {}
+            ,
+                text: 'Delete field'
+                iconCls: 'icon-remove'
+                disabled: true
+            ,
+                '->'
+            ,
+                text: 'Save'
+                iconCls: 'icon-save'
+                disabled: true
+            ]
+        ]
         @store = Ext.create 'Ext.data.Store',
             fields: ['name','comment']
             proxy: 'memory'
@@ -10,14 +34,38 @@ Ext.define 'Manager.Project.ModelEditor.Editor',
             dataIndex: 'name'
             header: 'Name'
             width: 150
+            editor:
+                allowBlank: false
         ,
+            dataIndex: 'type'
+            header: 'Type'
+            editor: new Ext.form.field.ComboBox
+                typeAhead: true
+                triggerAction: 'all'
+                editable: false
+                store: [
+                    ['integer', 'integer'],
+                    ['string', 'string'],
+                    ['datetime', 'datetime']
+                ]
+        ,
+            xtype: 'checkcolumn'
             header: 'PK'
-            width: 40
-            renderer: (v, m, r) ->
-                if Ext.Array.indexOf(this.schemaModel.pk, r.data.name) isnt -1
-                    'X'
-                else
-                    ""
+            dataIndex: 'pk'
+            width: 50
+        ,
+            xtype: 'checkcolumn'
+            header: 'NotNull'
+            dataIndex: 'required'
+            width: 100
+        ,
+            header: "FK"
+            dataIndex: 'fk',
+            width: 50
+        ,
+            header: 'Comment'
+            flex: 1
+            dataIndex: 'comment'
         ]
         @callParent arguments
 
@@ -27,5 +75,9 @@ Ext.define 'Manager.Project.ModelEditor.Editor',
         fields = []
         for name, property of this.schemaModel.properties
             property.name = name
+            property.pk = Ext.Array.indexOf(model.pk, name) isnt -1
             fields.push property
         this.store.loadData fields
+
+    onEditComplete: (editor, context) ->
+        this.getView().focusRow context.record

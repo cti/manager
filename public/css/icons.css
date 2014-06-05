@@ -1,3 +1,11 @@
 .open-project-col {
     background-image: url(../images/icons/16x16/magnifier.png);
 }
+
+.icon-add {
+    background-image: url(../images/icons/16x16/add.png);
+}
+
+.icon-remove {
+    background-image: url(../images/icons/16x16/delete.png);
+}
