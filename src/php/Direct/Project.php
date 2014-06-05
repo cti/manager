@@ -45,4 +45,10 @@ class Project
         }
         return $list;
     }
+
+    public function getModelData($projectNick, $modelName)
+    {
+        $project = $this->manager->getProject($projectNick);
+        return $project->getModel($modelName);
+    }
 }

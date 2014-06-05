@@ -23,6 +23,5 @@ Ext.define 'Manager.Project.Card',
     getModelsGrid: ->
         unless @modelsGrid
             @modelsGrid = Ext.create 'Manager.Project.Models',
-                card: this
                 width: 300
         @modelsGrid

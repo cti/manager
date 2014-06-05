@@ -39,4 +39,10 @@ class Project
         return $schema['models'];
     }
 
+    public function getModel($name)
+    {
+        $schema = $this->getSchema();
+        return $schema['models'][$name];
+    }
+
 } 

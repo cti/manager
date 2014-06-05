@@ -8,10 +8,18 @@ Ext.define 'Manager.Project.Models',
         @columns = [
             dataIndex: 'name'
             header: "Name"
+            flex: 1
         ]
+        @listeners =
+            itemdblclick: (view, record) =>
+                @openModelEditor record
         @callParent arguments
         @load()
 
     load: ->
-        Project.getModels @card.project.data.nick, (models) =>
+        Project.getModels mngr.project.data.nick, (models) =>
             @store.loadData models
+
+    openModelEditor: (model) ->
+        Ext.create 'Manager.Project.ModelEditor',
+            modelName: model.data.name

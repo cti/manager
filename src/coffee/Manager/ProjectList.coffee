@@ -39,8 +39,12 @@ Ext.define 'Manager.ProjectList',
         @load()
 
     load: ->
-        Project.getList (response) => @store.loadData response
+        Project.getList (response) =>
+            @store.loadData response
+            project = @store.getAt(0)
+            @openProject project if project
 
     openProject: (project) ->
+        mngr.project = project
         mngr.app.setContent Ext.create 'Manager.Project.Card',
             project: project

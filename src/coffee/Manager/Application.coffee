@@ -4,6 +4,14 @@ Ext.direct.Manager.on
     alert text
     console.log text
 
+Ext.direct.Manager.getProvider(0).on({
+    call: ->
+        Ext.getBody().mask("Загрузка")
+    data: ->
+        Ext.getBody().unmask()
+});
+
+
 # Global container
 window.mngr = {}
 
