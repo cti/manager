@@ -8,9 +8,20 @@ class Project
      */
     protected $config;
 
+    /**
+     * @inject
+     * @var \Build\Application
+     */
+    protected $application;
+
+    /**
+     * @var \Project\Schema
+     */
+    protected $schema;
+
     public function __construct($config)
     {
-        $this->config = $config['configuration'];
+        $this->config = $config;
         $this->consolePath = implode(DIRECTORY_SEPARATOR, array(
             $this->config['path'],
             'resources',
@@ -28,9 +39,12 @@ class Project
 
     public function getSchema()
     {
-        $jsonSchema = $this->executeConsole("show:schema");
-        $schema = json_decode($jsonSchema, true);
-        return $schema;
+        if (!$this->schema) {
+            $jsonSchema = $this->executeConsole("show:schema");
+            $data = json_decode($jsonSchema, true);
+            $this->schema = $this->application->getManager()->create("\\Project\\Schema", $data);
+        }
+        return $this->schema;
     }
 
     public function getModels()
@@ -43,6 +57,11 @@ class Project
     {
         $schema = $this->getSchema();
         return $schema['models'][$name];
+    }
+
+    public function getModelInstance($name)
+    {
+
     }
 
 } 

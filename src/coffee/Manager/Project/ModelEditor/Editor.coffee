@@ -16,28 +16,38 @@ Ext.define 'Manager.Project.ModelEditor.Editor',
                 handler: =>
                     @store.add {}
             ,
+                name: 'delete_button'
                 text: 'Delete field'
                 iconCls: 'icon-remove'
                 disabled: true
+                handler: =>
+                    record = @getSelection()[0]
+                    @store.remove record
             ,
                 '->'
             ,
                 text: 'Save'
                 iconCls: 'icon-save'
                 disabled: true
+                handler: =>
+                    @ownerCt.save()
             ]
         ]
         @store = Ext.create 'Ext.data.Store',
-            fields: ['name','comment']
+            fields: ['name','comment','pk','fk','original_name','type']
             proxy: 'memory'
             listeners:
                 update: (store, record, operation, modifiedFields) =>
                     @ownerCt.onChange record, modifiedFields[0], record.get(modifiedFields[0])
 
         @columns = [
+            dataIndex: 'original_name'
+            header: 'Original'
+            width: 100
+        ,
             dataIndex: 'name'
             header: 'Name'
-            width: 150
+            width: 100
             editor:
                 allowBlank: false
         ,
@@ -74,6 +84,9 @@ Ext.define 'Manager.Project.ModelEditor.Editor',
                 allowBlank: true
 
         ]
+        @listeners =
+            selectionchange: (self, record) =>
+                @down('[name=delete_button]').setDisabled(!record)
         @callParent arguments
 
     initByModel: (model) ->
@@ -81,6 +94,7 @@ Ext.define 'Manager.Project.ModelEditor.Editor',
         console.log model
         fields = []
         for name, property of this.schemaModel.properties
+            property.original_name = name
             property.name = name
             property.pk = Ext.Array.indexOf(model.pk, name) isnt -1
             fields.push property

@@ -13,6 +13,7 @@ Ext.define 'Manager.Project.ModelEditor',
         @show()
         Project.getModelData mngr.project.data.nick, @modelName, (data) =>
             @getEditor().initByModel data
+        window.me = this
 
     getEditor: ->
         unless @editor
@@ -39,6 +40,11 @@ Ext.define 'Manager.Project.ModelEditor',
                         strings.push "Added field \"#{propertyName}\" to PK"
                     else if value is false
                         strings.push "Removed field \"#{propertyName}\" from PK"
+                else if field is 'name'
+                    if not propertyName or propertyName is "undefined"
+                        strings.push "Added column #{value}"
+                    else
+                        strings.push "Changed name of field \"#{propertyName}\" to \"#{value}\""
                 else
                     strings.push "Changed #{field} of field \"#{propertyName}\" to #{value}"
         @getChangesTextContainer().update(strings.join("<br/>"))
@@ -47,8 +53,15 @@ Ext.define 'Manager.Project.ModelEditor',
         changes = {}
         @editor.store.queryBy (record) ->
             recordChanges = record.getChanges()
-            changes[record.data.name] = recordChanges unless Ext.Object.isEmpty(recordChanges)
+            changes[record.data.original_name] = recordChanges unless Ext.Object.isEmpty(recordChanges)
         return changes
 
+    save: ->
+        fields = []
+        @getEditor().store.queryBy (record) ->
+            fields.push record.data
+        changes = @collectChanges()
+        Project.saveModel mngr.project.data.nick, @modelName, fields, changes, (response) =>
+            @close()
 
 

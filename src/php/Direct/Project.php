@@ -51,4 +51,11 @@ class Project
         $project = $this->manager->getProject($projectNick);
         return $project->getModel($modelName);
     }
+
+    public function saveModel($projectNick, $modelName, $fields, $changes)
+    {
+        $project = $this->manager->getProject($projectNick);
+        $model = $project->getModelInstance($modelName);
+
+    }
 }

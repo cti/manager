@@ -52,14 +52,14 @@ class Manager
         return !!file_put_contents($this->configurationPath, $code);
     }
 
-    public function getProject($nick) {
+    public function getProject($nick)
+    {
         if (!isset($this->configuration[$nick])) {
             throw new \Exception("No project $nick found");
         }
-        $project = $this->application->getManager()->create('\Project\Project', array(
-            'configuration' => $this->configuration[$nick],
-        ));
+        $project = $this->application->getManager()->create('\Project\Project',
+            $this->configuration[$nick]
+        );
         return $project;
-
     }
-} 
+}

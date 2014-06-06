@@ -22,19 +22,28 @@ Ext.define('Manager.Project.ModelEditor.Editor', {
               return _this.store.add({});
             }
           }, {
+            name: 'delete_button',
             text: 'Delete field',
             iconCls: 'icon-remove',
-            disabled: true
+            disabled: true,
+            handler: function() {
+              var record;
+              record = _this.getSelection()[0];
+              return _this.store.remove(record);
+            }
           }, '->', {
             text: 'Save',
             iconCls: 'icon-save',
-            disabled: true
+            disabled: true,
+            handler: function() {
+              return _this.ownerCt.save();
+            }
           }
         ]
       }
     ];
     this.store = Ext.create('Ext.data.Store', {
-      fields: ['name', 'comment'],
+      fields: ['name', 'comment', 'pk', 'fk', 'original_name', 'type'],
       proxy: 'memory',
       listeners: {
         update: function(store, record, operation, modifiedFields) {
@@ -44,9 +53,13 @@ Ext.define('Manager.Project.ModelEditor.Editor', {
     });
     this.columns = [
       {
+        dataIndex: 'original_name',
+        header: 'Original',
+        width: 100
+      }, {
         dataIndex: 'name',
         header: 'Name',
-        width: 150,
+        width: 100,
         editor: {
           allowBlank: false
         }
@@ -82,6 +95,11 @@ Ext.define('Manager.Project.ModelEditor.Editor', {
         }
       }
     ];
+    this.listeners = {
+      selectionchange: function(self, record) {
+        return _this.down('[name=delete_button]').setDisabled(!record);
+      }
+    };
     return this.callParent(arguments);
   },
   initByModel: function(model) {
@@ -92,6 +110,7 @@ Ext.define('Manager.Project.ModelEditor.Editor', {
     _ref = this.schemaModel.properties;
     for (name in _ref) {
       property = _ref[name];
+      property.original_name = name;
       property.name = name;
       property.pk = Ext.Array.indexOf(model.pk, name) !== -1;
       fields.push(property);
@@ -114,9 +133,10 @@ Ext.define('Manager.Project.ModelEditor', {
     this.items = [this.getEditor(), this.getChangesTextContainer()];
     this.callParent(arguments);
     this.show();
-    return Project.getModelData(mngr.project.data.nick, this.modelName, function(data) {
+    Project.getModelData(mngr.project.data.nick, this.modelName, function(data) {
       return _this.getEditor().initByModel(data);
     });
+    return window.me = this;
   },
   getEditor: function() {
     if (!this.editor) {
@@ -130,7 +150,7 @@ Ext.define('Manager.Project.ModelEditor', {
         style: {
           padding: '5px'
         },
-        html: "Changes will appear here",
+        html: "",
         height: 200
       });
     }
@@ -150,6 +170,12 @@ Ext.define('Manager.Project.ModelEditor', {
           } else if (value === false) {
             strings.push("Removed field \"" + propertyName + "\" from PK");
           }
+        } else if (field === 'name') {
+          if (!propertyName || propertyName === "undefined") {
+            strings.push("Added column " + value);
+          } else {
+            strings.push("Changed name of field \"" + propertyName + "\" to \"" + value + "\"");
+          }
         } else {
           strings.push("Changed " + field + " of field \"" + propertyName + "\" to " + value);
         }
@@ -164,10 +190,22 @@ Ext.define('Manager.Project.ModelEditor', {
       var recordChanges;
       recordChanges = record.getChanges();
       if (!Ext.Object.isEmpty(recordChanges)) {
-        return changes[record.data.name] = recordChanges;
+        return changes[record.data.original_name] = recordChanges;
       }
     });
     return changes;
+  },
+  save: function() {
+    var changes, fields,
+      _this = this;
+    fields = [];
+    this.getEditor().store.queryBy(function(record) {
+      return fields.push(record.data);
+    });
+    changes = this.collectChanges();
+    return Project.saveModel(mngr.project.data.nick, this.modelName, fields, changes, function(response) {
+      return _this.close();
+    });
   }
 });
 
