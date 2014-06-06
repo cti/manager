@@ -9,15 +9,16 @@ class Schema
     protected $models = array();
 
     /**
+     * @inject
      * @var \Build\Application
      */
     protected $application;
 
-    public function __construct($config, \Build\Application $application)
+    public function init()
     {
-        $this->application = $application;
-
-        foreach($config['models'] as $name => $modelConfig) {
+        $modelsConfig = $this->models;
+        $this->models = array();
+        foreach($modelsConfig as $name => $modelConfig) {
             $this->createModel($name, $modelConfig);
         }
     }
@@ -25,6 +26,11 @@ class Schema
     public function getModel($nick)
     {
         return $this->models[$nick];
+    }
+
+    public function getModels()
+    {
+        return $this->models;
     }
 
     public function createModel($name, $config)

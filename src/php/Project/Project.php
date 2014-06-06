@@ -46,22 +46,4 @@ class Project
         }
         return $this->schema;
     }
-
-    public function getModels()
-    {
-        $schema = $this->getSchema();
-        return $schema['models'];
-    }
-
-    public function getModel($name)
-    {
-        $schema = $this->getSchema();
-        return $schema['models'][$name];
-    }
-
-    public function getModelInstance($name)
-    {
-
-    }
-
-} 
+}

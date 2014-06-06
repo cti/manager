@@ -3,11 +3,11 @@
 class SchemaTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @var \Project\Project
+     * @var \Project\Schema
      */
     protected $schema;
 
-    protected function getProject()
+    protected function getSchema()
     {
         if (!$this->schema) {
             $application = getApplication();
@@ -21,7 +21,23 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
 
     public function testCreate()
     {
-        $this->assertNotNull($this->getProject());
-
+        $this->assertNotNull($this->getSchema());
+        $models = $this->getSchema()->getModels();
+        $this->assertCount(4, $models);
+        $this->assertArrayHasKey("person", $models);
+        $person = $this->getSchema()->getModel("person");
+        $this->assertInstanceOf("\\Project\\Model", $person);
     }
+
+    public function testAddModel()
+    {
+        $this->markTestSkipped();
+    }
+
+    public function testRemoveModel()
+    {
+        $this->markTestSkipped();
+    }
+
+
 } 

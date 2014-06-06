@@ -36,26 +36,7 @@ class Project
     public function getModels($projectNick)
     {
         $project = $this->manager->getProject($projectNick);
-        $models = $project->getModels();
-        $list = array();
-        foreach(array_keys($models) as $name) {
-            $list[] = array(
-                'name' => $name
-            );
-        }
-        return $list;
+        throw new \Exception("NOT IMPLEMENTED");
     }
 
-    public function getModelData($projectNick, $modelName)
-    {
-        $project = $this->manager->getProject($projectNick);
-        return $project->getModel($modelName);
-    }
-
-    public function saveModel($projectNick, $modelName, $fields, $changes)
-    {
-        $project = $this->manager->getProject($projectNick);
-        $model = $project->getModelInstance($modelName);
-
-    }
 }
