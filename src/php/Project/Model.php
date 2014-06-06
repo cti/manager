@@ -11,21 +11,43 @@ class Model
     protected $properties = array();
 
     /**
+     * @inject
      * @var Application
      */
     protected $application;
 
-    public function __construct($config, Application $application)
+    /**
+     * @var array
+     */
+    protected $pk;
+
+    public function init()
     {
-        $this->application = $application;
-        foreach($config['properties'] as $name => $propertyConfig) {
+        $config = $this->properties;
+        $this->properties = array();
+        foreach($config as $name => $propertyConfig) {
             $this->addProperty($name, $propertyConfig);
+        }
+        foreach($this->pk as $name) {
+            $this->getProperty($name)->setPrimary(true);
         }
     }
 
+    /**
+     * @return Property[]
+     */
     public function getProperties()
     {
         return $this->properties;
+    }
+
+    /**
+     * @param $name
+     * @return Property
+     */
+    public function getProperty($name)
+    {
+        return $this->properties[$name];
     }
 
     public function addProperty($name, $config)
@@ -47,6 +69,9 @@ class Model
         }
     }
 
+    /**
+     * @return array
+     */
     public function getPrimaryKey()
     {
         $pk = array();
