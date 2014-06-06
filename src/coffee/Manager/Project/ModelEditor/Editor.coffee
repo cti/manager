@@ -11,7 +11,7 @@ Ext.define 'Manager.Project.ModelEditor.Editor',
         @dockedItems = [
             xtype: 'toolbar'
             items: [
-                text: 'Add fiesld'
+                text: 'Add field'
                 iconCls: 'icon-add'
                 handler: =>
                     @store.add {}
@@ -30,6 +30,10 @@ Ext.define 'Manager.Project.ModelEditor.Editor',
         @store = Ext.create 'Ext.data.Store',
             fields: ['name','comment']
             proxy: 'memory'
+            listeners:
+                update: (store, record, operation, modifiedFields) =>
+                    @ownerCt.onChange record, modifiedFields[0], record.get(modifiedFields[0])
+
         @columns = [
             dataIndex: 'name'
             header: 'Name'
@@ -66,6 +70,9 @@ Ext.define 'Manager.Project.ModelEditor.Editor',
             header: 'Comment'
             flex: 1
             dataIndex: 'comment'
+            editor:
+                allowBlank: true
+
         ]
         @callParent arguments
 

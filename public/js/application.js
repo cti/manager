@@ -16,7 +16,7 @@ Ext.define('Manager.Project.ModelEditor.Editor', {
         xtype: 'toolbar',
         items: [
           {
-            text: 'Add fiesld',
+            text: 'Add field',
             iconCls: 'icon-add',
             handler: function() {
               return _this.store.add({});
@@ -35,7 +35,12 @@ Ext.define('Manager.Project.ModelEditor.Editor', {
     ];
     this.store = Ext.create('Ext.data.Store', {
       fields: ['name', 'comment'],
-      proxy: 'memory'
+      proxy: 'memory',
+      listeners: {
+        update: function(store, record, operation, modifiedFields) {
+          return _this.ownerCt.onChange(record, modifiedFields[0], record.get(modifiedFields[0]));
+        }
+      }
     });
     this.columns = [
       {
@@ -71,7 +76,10 @@ Ext.define('Manager.Project.ModelEditor.Editor', {
       }, {
         header: 'Comment',
         flex: 1,
-        dataIndex: 'comment'
+        dataIndex: 'comment',
+        editor: {
+          allowBlank: true
+        }
       }
     ];
     return this.callParent(arguments);
@@ -98,11 +106,12 @@ Ext.define('Manager.Project.ModelEditor.Editor', {
 
 Ext.define('Manager.Project.ModelEditor', {
   extend: 'Ext.window.Window',
+  layout: 'vbox',
   modal: true,
   initComponent: function() {
     var _this = this;
     this.title = "Edit model " + this.modelName;
-    this.items = [this.getEditor()];
+    this.items = [this.getEditor(), this.getChangesTextContainer()];
     this.callParent(arguments);
     this.show();
     return Project.getModelData(mngr.project.data.nick, this.modelName, function(data) {
@@ -114,6 +123,51 @@ Ext.define('Manager.Project.ModelEditor', {
       this.editor = Ext.create('Manager.Project.ModelEditor.Editor');
     }
     return this.editor;
+  },
+  getChangesTextContainer: function() {
+    if (!this.changesText) {
+      this.changesText = Ext.create('Ext.Container', {
+        style: {
+          padding: '5px'
+        },
+        html: "Changes will appear here",
+        height: 200
+      });
+    }
+    return this.changesText;
+  },
+  onChange: function() {
+    var changes, field, propertyChanges, propertyName, strings, value;
+    strings = [];
+    changes = this.collectChanges();
+    for (propertyName in changes) {
+      propertyChanges = changes[propertyName];
+      for (field in propertyChanges) {
+        value = propertyChanges[field];
+        if (field === 'pk') {
+          if (value === true) {
+            strings.push("Added field \"" + propertyName + "\" to PK");
+          } else if (value === false) {
+            strings.push("Removed field \"" + propertyName + "\" from PK");
+          }
+        } else {
+          strings.push("Changed " + field + " of field \"" + propertyName + "\" to " + value);
+        }
+      }
+    }
+    return this.getChangesTextContainer().update(strings.join("<br/>"));
+  },
+  collectChanges: function() {
+    var changes;
+    changes = {};
+    this.editor.store.queryBy(function(record) {
+      var recordChanges;
+      recordChanges = record.getChanges();
+      if (!Ext.Object.isEmpty(recordChanges)) {
+        return changes[record.data.name] = recordChanges;
+      }
+    });
+    return changes;
   }
 });
 
