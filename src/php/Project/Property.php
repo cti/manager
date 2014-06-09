@@ -138,4 +138,16 @@ class Property
     {
         $this->type = $type;
     }
+
+    public function asArray()
+    {
+        return array(
+            'name' => $this->name,
+            'comment' => $this->comment,
+            'type' => $this->type,
+            'primary' => $this->primary,
+            'notNull' => $this->notNull,
+            'foreign' => $this->foreign,
+        );
+    }
 } 

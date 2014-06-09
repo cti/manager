@@ -5,10 +5,10 @@ Ext.direct.Manager.on
     console.log text
 
 Ext.direct.Manager.getProvider(0).on({
-    call: ->
-        Ext.getBody().mask("Загрузка")
-    data: ->
-        Ext.getBody().unmask()
+  call: ->
+    Ext.getBody().mask("Загрузка")
+  data: ->
+    Ext.getBody().unmask()
 });
 
 
@@ -17,35 +17,34 @@ window.mngr = {}
 
 Ext.define 'Manager.Application',
 
-    extend: 'Ext.Viewport'
-    layout:'border'
+  extend: 'Ext.Viewport'
+  layout: 'border'
 
-    initComponent:->
+  initComponent: ->
+    @renderTo = Ext.getBody()
 
-        @renderTo = Ext.getBody()
+    @items = [
+      @getContainerPanel()
+    ]
 
-        @items = [
-            @getContainerPanel()
-        ]
+    @callParent arguments
 
-        @callParent arguments
+    mngr.app = this
+    @openProjectList()
 
-        mngr.app = this
-        @openProjectList()
+  getContainerPanel: ->
+    unless @containerPanel
+      @containerPanel = Ext.create 'Ext.panel.Panel',
+        region: 'center'
+        layout: 'fit'
+    @containerPanel
 
-    getContainerPanel: ->
-        unless @containerPanel
-            @containerPanel = Ext.create 'Ext.panel.Panel',
-                region: 'center'
-                layout: 'fit'
-        @containerPanel
-
-    setContent: (item) ->
-        @getContainerPanel().removeAll()
-        @getContainerPanel().add item
+  setContent: (item) ->
+    @getContainerPanel().removeAll()
+    @getContainerPanel().add item
 
 
-    openProjectList: ->
-        list = Ext.create 'Manager.ProjectList',
-            border:false
-        @setContent list
+  openProjectList: ->
+    list = Ext.create 'Manager.ProjectList',
+      border: false
+    @setContent list

@@ -52,6 +52,11 @@ class Manager
         return !!file_put_contents($this->configurationPath, $code);
     }
 
+    /**
+     * @param $nick
+     * @return \Project\Project
+     * @throws \Exception
+     */
     public function getProject($nick)
     {
         if (!isset($this->configuration[$nick])) {

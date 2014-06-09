@@ -36,7 +36,14 @@ class Project
     public function getModels($projectNick)
     {
         $project = $this->manager->getProject($projectNick);
-        throw new \Exception("NOT IMPLEMENTED");
+        return $project->getSchema()->getModels();
     }
+
+    public function getSchema($projectNick)
+    {
+        $project = $this->manager->getProject($projectNick);
+        return $project->getSchema()->asArray();
+    }
+
 
 }

@@ -8,7 +8,17 @@ class Model
     /**
      * @var \Project\Property[]
      */
-    protected $properties = array();
+    protected $properties;
+
+    /**
+     * @var array
+     */
+    protected $config;
+
+    /**
+     * @var String
+     */
+    protected $name;
 
     /**
      * @inject
@@ -23,7 +33,8 @@ class Model
 
     public function init()
     {
-        $config = $this->properties;
+        $this->pk = $this->config['pk'];
+        $config = $this->config['properties'];
         $this->properties = array();
         foreach($config as $name => $propertyConfig) {
             $this->addProperty($name, $propertyConfig);
@@ -81,5 +92,19 @@ class Model
             }
         }
         return $pk;
+    }
+
+    public function asArray()
+    {
+        $array = array(
+            'name' => $this->name,
+            'properties' => array(),
+            'pk' => $this->getPrimaryKey()
+        );
+        foreach($this->getProperties() as $property) {
+            $array['properties'][] = $property->asArray();
+        }
+        return $array;
+
     }
 } 

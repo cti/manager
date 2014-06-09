@@ -1,215 +1,4 @@
 
-Ext.define('Manager.Project.ModelEditor.Editor', {
-  extend: 'Ext.grid.Panel',
-  height: 400,
-  width: 800,
-  xtype: 'cell-editing',
-  initComponent: function() {
-    var _this = this;
-    this.cellEditing = new Ext.grid.plugin.CellEditing({
-      clicksToEdit: 1
-    });
-    this.cellEditing.on('edit', this.onEditComplete, this);
-    this.plugins = [this.cellEditing];
-    this.dockedItems = [
-      {
-        xtype: 'toolbar',
-        items: [
-          {
-            text: 'Add field',
-            iconCls: 'icon-add',
-            handler: function() {
-              return _this.store.add({});
-            }
-          }, {
-            name: 'delete_button',
-            text: 'Delete field',
-            iconCls: 'icon-remove',
-            disabled: true,
-            handler: function() {
-              var record;
-              record = _this.getSelection()[0];
-              return _this.store.remove(record);
-            }
-          }, '->', {
-            text: 'Save',
-            iconCls: 'icon-save',
-            disabled: true,
-            handler: function() {
-              return _this.ownerCt.save();
-            }
-          }
-        ]
-      }
-    ];
-    this.store = Ext.create('Ext.data.Store', {
-      fields: ['name', 'comment', 'pk', 'fk', 'original_name', 'type'],
-      proxy: 'memory',
-      listeners: {
-        update: function(store, record, operation, modifiedFields) {
-          return _this.ownerCt.onChange(record, modifiedFields[0], record.get(modifiedFields[0]));
-        }
-      }
-    });
-    this.columns = [
-      {
-        dataIndex: 'original_name',
-        header: 'Original',
-        width: 100
-      }, {
-        dataIndex: 'name',
-        header: 'Name',
-        width: 100,
-        editor: {
-          allowBlank: false
-        }
-      }, {
-        dataIndex: 'type',
-        header: 'Type',
-        editor: new Ext.form.field.ComboBox({
-          typeAhead: true,
-          triggerAction: 'all',
-          editable: false,
-          store: [['integer', 'integer'], ['string', 'string'], ['datetime', 'datetime']]
-        })
-      }, {
-        xtype: 'checkcolumn',
-        header: 'PK',
-        dataIndex: 'pk',
-        width: 50
-      }, {
-        xtype: 'checkcolumn',
-        header: 'NotNull',
-        dataIndex: 'required',
-        width: 100
-      }, {
-        header: "FK",
-        dataIndex: 'fk',
-        width: 50
-      }, {
-        header: 'Comment',
-        flex: 1,
-        dataIndex: 'comment',
-        editor: {
-          allowBlank: true
-        }
-      }
-    ];
-    this.listeners = {
-      selectionchange: function(self, record) {
-        return _this.down('[name=delete_button]').setDisabled(!record);
-      }
-    };
-    return this.callParent(arguments);
-  },
-  initByModel: function(model) {
-    var fields, name, property, _ref;
-    this.schemaModel = model;
-    console.log(model);
-    fields = [];
-    _ref = this.schemaModel.properties;
-    for (name in _ref) {
-      property = _ref[name];
-      property.original_name = name;
-      property.name = name;
-      property.pk = Ext.Array.indexOf(model.pk, name) !== -1;
-      fields.push(property);
-    }
-    return this.store.loadData(fields);
-  },
-  onEditComplete: function(editor, context) {
-    return this.getView().focusRow(context.record);
-  }
-});
-
-
-Ext.define('Manager.Project.ModelEditor', {
-  extend: 'Ext.window.Window',
-  layout: 'vbox',
-  modal: true,
-  initComponent: function() {
-    var _this = this;
-    this.title = "Edit model " + this.modelName;
-    this.items = [this.getEditor(), this.getChangesTextContainer()];
-    this.callParent(arguments);
-    this.show();
-    Project.getModelData(mngr.project.data.nick, this.modelName, function(data) {
-      return _this.getEditor().initByModel(data);
-    });
-    return window.me = this;
-  },
-  getEditor: function() {
-    if (!this.editor) {
-      this.editor = Ext.create('Manager.Project.ModelEditor.Editor');
-    }
-    return this.editor;
-  },
-  getChangesTextContainer: function() {
-    if (!this.changesText) {
-      this.changesText = Ext.create('Ext.Container', {
-        style: {
-          padding: '5px'
-        },
-        html: "",
-        height: 200
-      });
-    }
-    return this.changesText;
-  },
-  onChange: function() {
-    var changes, field, propertyChanges, propertyName, strings, value;
-    strings = [];
-    changes = this.collectChanges();
-    for (propertyName in changes) {
-      propertyChanges = changes[propertyName];
-      for (field in propertyChanges) {
-        value = propertyChanges[field];
-        if (field === 'pk') {
-          if (value === true) {
-            strings.push("Added field \"" + propertyName + "\" to PK");
-          } else if (value === false) {
-            strings.push("Removed field \"" + propertyName + "\" from PK");
-          }
-        } else if (field === 'name') {
-          if (!propertyName || propertyName === "undefined") {
-            strings.push("Added column " + value);
-          } else {
-            strings.push("Changed name of field \"" + propertyName + "\" to \"" + value + "\"");
-          }
-        } else {
-          strings.push("Changed " + field + " of field \"" + propertyName + "\" to " + value);
-        }
-      }
-    }
-    return this.getChangesTextContainer().update(strings.join("<br/>"));
-  },
-  collectChanges: function() {
-    var changes;
-    changes = {};
-    this.editor.store.queryBy(function(record) {
-      var recordChanges;
-      recordChanges = record.getChanges();
-      if (!Ext.Object.isEmpty(recordChanges)) {
-        return changes[record.data.original_name] = recordChanges;
-      }
-    });
-    return changes;
-  },
-  save: function() {
-    var changes, fields,
-      _this = this;
-    fields = [];
-    this.getEditor().store.queryBy(function(record) {
-      return fields.push(record.data);
-    });
-    changes = this.collectChanges();
-    return Project.saveModel(mngr.project.data.nick, this.modelName, fields, changes, function(response) {
-      return _this.close();
-    });
-  }
-});
-
-
 Ext.define('Manager.Project.Models', {
   extend: 'Ext.grid.Panel',
   title: 'Models',
@@ -222,28 +11,90 @@ Ext.define('Manager.Project.Models', {
     this.columns = [
       {
         dataIndex: 'name',
-        header: "Name",
+        header: 'Name',
         flex: 1
       }
     ];
     this.listeners = {
       itemdblclick: function(view, record) {
-        return _this.openModelEditor(record);
+        return true;
       }
     };
-    this.callParent(arguments);
-    return this.load();
+    return this.callParent(arguments);
   },
   load: function() {
-    var _this = this;
-    return Project.getModels(mngr.project.data.nick, function(models) {
-      return _this.store.loadData(models);
-    });
+    var data, model, models, _i, _len;
+    models = mngr.project.schema.getModels();
+    data = [];
+    for (_i = 0, _len = models.length; _i < _len; _i++) {
+      model = models[_i];
+      data.push({
+        name: model.getName()
+      });
+    }
+    return this.store.loadData(data);
+  }
+});
+
+
+Ext.define('Manager.Project.Schema.Property', {
+  constructor: function(config) {
+    Ext.apply(this, config);
+    return this;
+  }
+});
+
+
+Ext.define('Manager.Project.Schema.Model', {
+  properties: {},
+  constructor: function(config) {
+    var propertyConfig, _i, _len, _ref;
+    this.name = config.name;
+    this.pk = config.pk;
+    _ref = config.properties;
+    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+      propertyConfig = _ref[_i];
+      this.properties[propertyConfig.name] = Ext.create('Manager.Project.Schema.Property', propertyConfig);
+    }
+    return this;
   },
-  openModelEditor: function(model) {
-    return Ext.create('Manager.Project.ModelEditor', {
-      modelName: model.data.name
-    });
+  getName: function() {
+    return this.name;
+  },
+  getProperties: function() {
+    var name, property, _ref, _results;
+    _ref = this.properties;
+    _results = [];
+    for (name in _ref) {
+      property = _ref[name];
+      _results.push(property);
+    }
+    return _results;
+  }
+});
+
+
+Ext.define('Manager.Project.Schema.Schema', {
+  models: {},
+  constructor: function(config) {
+    var model, modelConfig, _i, _len, _ref;
+    _ref = config.models;
+    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+      modelConfig = _ref[_i];
+      model = Ext.create('Manager.Project.Schema.Model', modelConfig);
+      this.models[model.name] = model;
+    }
+    return this;
+  },
+  getModels: function() {
+    var model, name, _ref, _results;
+    _ref = this.models;
+    _results = [];
+    for (name in _ref) {
+      model = _ref[name];
+      _results.push(model);
+    }
+    return _results;
   }
 });
 
@@ -261,7 +112,7 @@ Ext.define('Manager.Project.Card', {
     this.items = [
       this.getModelsGrid(), {
         xtype: 'container',
-        html: 'Some content'
+        html: ''
       }
     ];
     this.tools = [
@@ -272,7 +123,16 @@ Ext.define('Manager.Project.Card', {
         }
       }
     ];
-    return this.callParent(arguments);
+    this.callParent(arguments);
+    mngr.project = this;
+    return this.loadSchema();
+  },
+  loadSchema: function() {
+    var _this = this;
+    return Project.getSchema(this.project.data.nick, function(schemaConfig) {
+      _this.schema = Ext.create('Manager.Project.Schema.Schema', schemaConfig);
+      return _this.getModelsGrid().load();
+    });
   },
   getModelsGrid: function() {
     if (!this.modelsGrid) {

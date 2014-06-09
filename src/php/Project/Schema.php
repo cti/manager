@@ -35,11 +35,25 @@ class Schema
 
     public function createModel($name, $config)
     {
-        $this->models[$name] = $this->application->getManager()->create('\Project\Model', $config);
+        $this->models[$name] = $this->application->getManager()->create('\Project\Model', array(
+            'config' => $config,
+            'name' => $name,
+        ));
     }
 
     public function removeModel($name)
     {
         unset($this->models[$name]);
+    }
+
+    public function asArray()
+    {
+        $array = array(
+            'models' => array()
+        );
+        foreach($this->getModels() as $model) {
+            $array['models'][] = $model->asArray();
+        }
+        return $array;
     }
 } 
