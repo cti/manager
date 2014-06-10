@@ -31,6 +31,18 @@ Ext.define 'Manager.Project.Models.Editor.Grid',
       dataIndex: 'pk'
       width: 40
     ,
+      xtype: 'booleancolumn'
+      header: 'FK'
+      dataIndex: 'foreign'
+      width: 40
+      trueText: 'X'
+      falseText: ''
+    ,
+      xtype: 'checkcolumn'
+      header: 'Not null'
+      dataIndex: 'notNull'
+      width: 80
+    ,
       header: 'Type'
       dataIndex: 'type'
       editor: new Ext.form.field.ComboBox
@@ -57,15 +69,6 @@ Ext.define 'Manager.Project.Models.Editor.Grid',
         iconCls: 'icon-remove'
         disabled: true
         handler: => @store.remove @getSelection()[0]
-      ,
-        '->'
-      ,
-        text: 'Save'
-        iconCls: 'icon-save'
-        handler: =>
-          @ownerCt.save @collectChanges()
-          @store.queryBy (record) -> record.commit()
-
       ]
     ]
 
@@ -78,8 +81,9 @@ Ext.define 'Manager.Project.Models.Editor.Grid',
 
   load: ->
     data = []
-    for property in @model.getProperties()
-      data.push Ext.clone property
+    if @model
+      for property in @model.getProperties()
+        data.push Ext.clone property
     @store.loadData data
 
   collectChanges: ->

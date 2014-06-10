@@ -4,9 +4,15 @@ Ext.define 'Manager.Project.Models.Editor',
   modal: true
   layout: 'fit'
   initComponent: ->
-    @title = "Edit model #{@model.getName()}"
+    @title = "Edit model #{if @model then @model.getName() else "newmodel"}"
     @items = [
+      @getForm()
+    ,
       @getGrid()
+    ]
+    @buttons = [
+      text: 'Save'
+      handler: => @save()
     ]
     @callParent arguments
     @show()
@@ -18,5 +24,23 @@ Ext.define 'Manager.Project.Models.Editor',
         width: 600
     @grid
 
+  getForm: ->
+    unless @form
+      @form = Ext.create 'Ext.form.Panel',
+        width: '100%'
+        bodyPadding: 5
+        items: [
+          xtype: 'textfield'
+          name: 'model_name_field'
+          value: if @model then @model.getName() else ""
+          fieldLabel: 'Model name'
+          allowBlank: false
+        ]
+    @form
+
   save: (changes) ->
-    mngr.project.schema.applyChanges @model.getName(), changes
+    name = @down('[name=model_name_field]').getValue()
+    changes = @getGrid().collectChanges()
+    mngr.project.schema.applyChanges (if @model then @model.getName() else null), name, changes
+    @getGrid().store.queryBy (record) -> record.commit()
+    @close()

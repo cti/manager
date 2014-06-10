@@ -1,14 +1,18 @@
 Ext.define 'Manager.Project.Schema.Model',
   constructor: (config) ->
-    @properties = {}
     @name = config.name
+    @properties = {}
     @pk = config.pk
+    @references = []
     for propertyConfig in config.properties
       propertyConfig.pk = (Ext.Array.indexOf config.pk, propertyConfig.name) isnt -1
       @properties[propertyConfig.name] = Ext.create 'Manager.Project.Schema.Property', propertyConfig
+    for referenceConfig in config.references
+      @references.push referenceConfig
     this
 
   getName: -> @name
+  setName: (name) -> @name = name
   getProperties: -> property for name, property of @properties
   getProperty: (name) -> @properties[name]
   getPk: -> @pk

@@ -31,6 +31,11 @@ class Model
      */
     protected $pk;
 
+    /**
+     * @var array
+     */
+    protected $references = array();
+
     public function init()
     {
         $this->pk = $this->config['pk'];
@@ -41,6 +46,9 @@ class Model
         }
         foreach($this->pk as $name) {
             $this->getProperty($name)->setPrimary(true);
+        }
+        foreach($this->config['references'] as $reference) {
+            $this->addReference($reference);
         }
     }
 
@@ -66,6 +74,15 @@ class Model
         $config['name'] = $name;
         $property = $this->application->getManager()->create('\Project\Property', $config);
         $this->properties[$name] = $property;
+    }
+
+    public function addReference($config)
+    {
+        $this->references[$config['destination'].':'.$config['destination_alias']] = $config;
+        foreach($config['properties'] as $name) {
+            $property = $this->getProperty($name);
+            $property->setForeign(true);
+        }
     }
 
     public function removeProperty($name)
@@ -99,7 +116,8 @@ class Model
         $array = array(
             'name' => $this->name,
             'properties' => array(),
-            'pk' => $this->getPrimaryKey()
+            'pk' => $this->getPrimaryKey(),
+            'references' => array_values($this->references),
         );
         foreach($this->getProperties() as $property) {
             $array['properties'][] = $property->asArray();

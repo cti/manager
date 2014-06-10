@@ -13,6 +13,13 @@ Ext.define 'Manager.Project.Models',
     @listeners =
       itemdblclick: (view, record) =>
         @openModelEditor mngr.project.schema.getModel record.data.name
+
+    @tools = [
+      id: 'plus'
+      handler: =>
+        @openModelEditor null
+    ]
+
     @callParent arguments
 
   load: ->
