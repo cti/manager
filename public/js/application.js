@@ -1,4 +1,144 @@
 
+Ext.define('Manager.Project.Models.Editor.PropertyModel', {
+  extend: 'Ext.data.Model',
+  fields: ['originalName', 'name', 'pk', 'type', 'comment'],
+  idProperty: 'originalName'
+});
+
+
+Ext.define('Manager.Project.Models.Editor.Grid', {
+  extend: 'Ext.grid.Panel',
+  requires: ['Manager.Project.Models.Editor.PropertyModel'],
+  xtype: 'cell-editing',
+  initComponent: function() {
+    var types,
+      _this = this;
+    this.cellEditing = new Ext.grid.plugin.CellEditing({
+      clicksToEdit: 1
+    });
+    this.plugins = [this.cellEditing];
+    types = [['integer', 'integer'], ['string', 'string'], ['datetime', 'datetime'], ['boolean', 'boolean'], ['clob', 'clob']];
+    this.store = Ext.create('Ext.data.Store', {
+      model: 'Manager.Project.Models.Editor.PropertyModel',
+      proxy: 'memory'
+    });
+    this.columns = [
+      {
+        header: 'Name',
+        dataIndex: 'name',
+        editor: {
+          allowBlank: false
+        }
+      }, {
+        xtype: 'checkcolumn',
+        header: 'PK',
+        dataIndex: 'pk',
+        width: 40
+      }, {
+        header: 'Type',
+        dataIndex: 'type',
+        editor: new Ext.form.field.ComboBox({
+          typeAhead: true,
+          triggerAction: 'all',
+          store: types
+        })
+      }, {
+        header: 'Comment',
+        dataIndex: 'comment',
+        flex: 1,
+        editor: {
+          allowBlank: true
+        }
+      }
+    ];
+    this.dockedItems = [
+      {
+        xtype: 'toolbar',
+        items: [
+          {
+            text: 'Add field',
+            iconCls: 'icon-add',
+            handler: function() {
+              return _this.store.add({
+                name: 'newfield'
+              });
+            }
+          }, {
+            name: 'delete_button',
+            text: 'Delete field',
+            iconCls: 'icon-remove',
+            disabled: true,
+            handler: function() {
+              return _this.store.remove(_this.getSelection()[0]);
+            }
+          }, '->', {
+            text: 'Save',
+            iconCls: 'icon-save',
+            handler: function() {
+              _this.ownerCt.save(_this.collectChanges());
+              return _this.store.queryBy(function(record) {
+                return record.commit();
+              });
+            }
+          }
+        ]
+      }
+    ];
+    this.listeners = {
+      selectionchange: function(self, record) {
+        return _this.down('[name=delete_button]').setDisabled(!record.length);
+      }
+    };
+    this.callParent(arguments);
+    return this.load();
+  },
+  load: function() {
+    var data, property, _i, _len, _ref;
+    data = [];
+    _ref = this.model.getProperties();
+    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+      property = _ref[_i];
+      data.push(Ext.clone(property));
+    }
+    return this.store.loadData(data);
+  },
+  collectChanges: function() {
+    return {
+      updated: this.store.getUpdatedRecords(),
+      "new": this.store.getNewRecords(),
+      removed: this.store.getRemovedRecords()
+    };
+  }
+});
+
+
+Ext.define('Manager.Project.Models.Editor', {
+  extend: "Ext.window.Window",
+  resizable: false,
+  modal: true,
+  layout: 'fit',
+  initComponent: function() {
+    this.title = "Edit model " + (this.model.getName());
+    this.items = [this.getGrid()];
+    this.callParent(arguments);
+    return this.show();
+  },
+  getGrid: function() {
+    if (!this.grid) {
+      this.grid = Ext.create('Manager.Project.Models.Editor.Grid', {
+        model: this.model,
+        height: 400,
+        width: 600
+      });
+    }
+    return this.grid;
+  },
+  save: function(changes) {
+    return mngr.project.schema.applyChanges(this.model.getName(), changes);
+  }
+});
+
+
 Ext.define('Manager.Project.Models', {
   extend: 'Ext.grid.Panel',
   title: 'Models',
@@ -17,7 +157,7 @@ Ext.define('Manager.Project.Models', {
     ];
     this.listeners = {
       itemdblclick: function(view, record) {
-        return true;
+        return _this.openModelEditor(mngr.project.schema.getModel(record.data.name));
       }
     };
     return this.callParent(arguments);
@@ -33,6 +173,11 @@ Ext.define('Manager.Project.Models', {
       });
     }
     return this.store.loadData(data);
+  },
+  openModelEditor: function(model) {
+    return Ext.create('Manager.Project.Models.Editor', {
+      model: model
+    });
   }
 });
 
@@ -40,20 +185,22 @@ Ext.define('Manager.Project.Models', {
 Ext.define('Manager.Project.Schema.Property', {
   constructor: function(config) {
     Ext.apply(this, config);
+    this.originalName = this.name;
     return this;
   }
 });
 
 
 Ext.define('Manager.Project.Schema.Model', {
-  properties: {},
   constructor: function(config) {
     var propertyConfig, _i, _len, _ref;
+    this.properties = {};
     this.name = config.name;
     this.pk = config.pk;
     _ref = config.properties;
     for (_i = 0, _len = _ref.length; _i < _len; _i++) {
       propertyConfig = _ref[_i];
+      propertyConfig.pk = (Ext.Array.indexOf(config.pk, propertyConfig.name)) !== -1;
       this.properties[propertyConfig.name] = Ext.create('Manager.Project.Schema.Property', propertyConfig);
     }
     return this;
@@ -70,14 +217,66 @@ Ext.define('Manager.Project.Schema.Model', {
       _results.push(property);
     }
     return _results;
+  },
+  getProperty: function(name) {
+    return this.properties[name];
+  },
+  getPk: function() {
+    return this.pk;
+  },
+  applyChanges: function(changes) {
+    var key, oldName, property, record, value, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2, _results;
+    _ref = changes["new"];
+    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+      record = _ref[_i];
+      property = Ext.create('Manager.Project.Schema.Property', record.data);
+      this.properties[record.data.name] = property;
+      if (property.pk) {
+        this.pk.push(property.name);
+      }
+    }
+    _ref1 = changes.removed;
+    for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+      record = _ref1[_j];
+      delete this.properties[record.data.name];
+      Ext.Array.remove(this.pk, record.data.name);
+    }
+    _ref2 = changes.updated;
+    _results = [];
+    for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
+      record = _ref2[_k];
+      changes = record.getChanges();
+      if (changes.name) {
+        oldName = record.getModified('name');
+        Ext.Array.remove(this.pk, oldName);
+        this.properties[record.data.name] = this.properties[oldName];
+        delete this.properties[oldName];
+      }
+      if (changes.pk === true) {
+        this.pk.push(record.data.name);
+      } else if (changes.pk === false) {
+        Ext.Array.remove(this.pk, record.data.name);
+      }
+      property = this.getProperty(record.data.name);
+      _results.push((function() {
+        var _results1;
+        _results1 = [];
+        for (key in changes) {
+          value = changes[key];
+          _results1.push(property[key] = value);
+        }
+        return _results1;
+      })());
+    }
+    return _results;
   }
 });
 
 
 Ext.define('Manager.Project.Schema.Schema', {
-  models: {},
   constructor: function(config) {
     var model, modelConfig, _i, _len, _ref;
+    this.models = {};
     _ref = config.models;
     for (_i = 0, _len = _ref.length; _i < _len; _i++) {
       modelConfig = _ref[_i];
@@ -95,6 +294,14 @@ Ext.define('Manager.Project.Schema.Schema', {
       _results.push(model);
     }
     return _results;
+  },
+  getModel: function(modelName) {
+    return this.models[modelName];
+  },
+  applyChanges: function(modelName, changes) {
+    var model;
+    model = this.getModel(modelName);
+    return model.applyChanges(changes);
   }
 });
 

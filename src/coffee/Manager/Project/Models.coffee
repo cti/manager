@@ -12,8 +12,7 @@ Ext.define 'Manager.Project.Models',
     ]
     @listeners =
       itemdblclick: (view, record) =>
-        #@openModelEditor recordy
-        true
+        @openModelEditor mngr.project.schema.getModel record.data.name
     @callParent arguments
 
   load: ->
@@ -23,3 +22,7 @@ Ext.define 'Manager.Project.Models',
       data.push
         name: model.getName()
     @store.loadData data
+
+  openModelEditor: (model) ->
+    Ext.create 'Manager.Project.Models.Editor',
+      model: model
