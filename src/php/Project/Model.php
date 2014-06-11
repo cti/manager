@@ -32,6 +32,11 @@ class Model
     protected $pk;
 
     /**
+     * @var String
+     */
+    protected $originalName;
+
+    /**
      * @var array
      */
     protected $references = array();
@@ -41,6 +46,7 @@ class Model
         $this->pk = $this->config['pk'];
         $config = $this->config['properties'];
         $this->properties = array();
+        $this->originalName = !empty($this->config['originalName']) ? $this->config['originalName'] : null;
         foreach($config as $name => $propertyConfig) {
             $this->addProperty($name, $propertyConfig);
         }
@@ -95,6 +101,17 @@ class Model
         foreach($this->getProperties() as $property) {
             $property->setPrimary(in_array($property->getName(), $pk));
         }
+    }
+
+    public function getName()
+    {
+        return $this->name;
+    }
+
+
+    public function getOriginalName()
+    {
+        return $this->originalName;
     }
 
     /**

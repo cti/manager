@@ -11,6 +11,11 @@ class Property
     /**
      * @var String
      */
+    protected $originalName;
+
+    /**
+     * @var String
+     */
     protected $comment;
 
     /**
@@ -36,11 +41,32 @@ class Property
     public function __construct($config)
     {
         $this->name = $config['name'];
+        $this->originalName = isset($config['originalName']) ? $config['originalName'] : null;
         $this->comment = $config['comment'];
         $this->type = $config['type'];
         $this->primary = !empty($config['primary']);
         $this->notNull = !empty($config['required']);
         $this->foreign = !empty($config['foreign']);
+    }
+
+    public function get($field) {
+        return $this->$field;
+    }
+
+    /**
+     * @return String
+     */
+    public function getOriginalName()
+    {
+        return $this->originalName;
+    }
+
+    /**
+     * @param String $originalName
+     */
+    public function setOriginalName($originalName)
+    {
+        $this->originalName = $originalName;
     }
 
     /**

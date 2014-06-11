@@ -104,10 +104,6 @@
                     "comment": "\u0420\u0435\u0439\u0442\u0438\u043d\u0433",
                     "type": "integer",
                     "required": false
-                },
-                "v_start": {
-                    "comment": null, "type": "datetime", "required": true,
-                    "originalName":"v_start"
                 }
             },
             "references": [
@@ -117,29 +113,6 @@
                     "destination_alias": "favorite_module",
                     "properties": ["id_module_favorite_module"]
                 }
-            ]
-        },
-        "module_developer_link": {
-            "originalName":"module_developer_link",
-            "pk": ["id_module", "v_end"],
-            "has_log": true,
-            "is_link": true,
-            "properties": {
-                "id_module": {
-                    "comment": "module link", "type": "integer", "required": true,
-                    "originalName":"id_module"
-                },
-                "v_end": {
-                    "comment": null, "type": "datetime", "required": true,
-                    "originalName":"v_end"
-                },
-                "v_start": {
-                    "comment": null, "type": "datetime", "required": true,
-                    "originalName": "v_start"
-                }
-            },
-            "references": [
-                {"destination": "module", "destination_alias": "module", "properties": ["id_module"]}
             ]
         },
         "test": {

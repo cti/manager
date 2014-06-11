@@ -42,6 +42,7 @@ return array(
                     "action" => "remove",
                 ),
                 "rating" => array(
+
                     "action" => "rename",
                     "name" => "ratings",
                 ),

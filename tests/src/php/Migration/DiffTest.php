@@ -27,7 +27,6 @@ class DiffTest extends \PHPUnit_Framework_TestCase
 {
     public function testDifference()
     {
-        $this->markTestSkipped();
         $from = Container::getSchema();
         $to = Container::getModifiedSchema();
         $diffTool = getApplication()->getManager()->create("\\Migration\\Diff", array(
