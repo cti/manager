@@ -51,5 +51,9 @@ class Project
     {
         $schema = $this->getSchema();
         $newSchema = $this->application->getManager()->create("\\Project\\Schema", $config);
+        $diff = $this->application->getManager()->create("\\Migration\\Diff", array(
+            'from' => $schema,
+            'to' => $newSchema
+        ));
     }
 }

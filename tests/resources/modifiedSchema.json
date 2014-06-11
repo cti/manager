@@ -1,0 +1,160 @@
+{"models": {
+        "person": {
+            "originalName":"person",
+            "pk": ["id_person", "v_end", "login"],
+            "has_log": true,
+            "is_link": false,
+            "properties": {
+                "id_person": {
+                    "comment": "identifier", "type": "integer", "required": true,
+                    "originalName":"id_person"
+                },
+                "v_end": {
+                    "comment": null, "type": "datetime", "required": true,
+                    "originalName":"v_end"
+                },
+                "hash": {
+                    "originalName":"hash",
+                    "comment": "\u041f\u043e\u043b\u0443\u0447\u0435\u043d\u043d\u044b\u0439 \u0445\u044d\u0448",
+                    "type": "string",
+                    "required": false
+                },
+                "id_module_default_module": {
+                    "comment": "default_module link", "type": "integer", "required": false,
+                    "originalName":"id_module_default_module"
+                },
+                "login": {
+                    "originalName":"login",
+                    "comment": "\u0418\u043c\u044f \u043f\u043e\u043b\u044c\u0437\u043e\u0432\u0430\u0442\u0435\u043b\u044f",
+                    "type": "string",
+                    "required": true
+                },
+                "salt": {
+                    "originalName":"salt",
+                    "comment": "\u0421\u043e\u043b\u044c \u0434\u043b\u044f \u0432\u044b\u0447\u0438\u0441\u043b\u0435\u043d\u0438\u044f \u0445\u044d\u0448\u0430",
+                    "type": "string",
+                    "required": false
+                },
+                "v_start": {
+                    "comment": null, "type": "datetime", "required": true,
+                    "originalName":"v_start"
+                }
+            },
+            "references": [
+                {
+                    "destination": "module",
+                    "destination_alias": "default_module",
+                    "properties": ["id_module_default_module"]
+                }
+            ]
+        },
+        "modules": {
+            "originalName":"module",
+            "pk": ["id_module"],
+            "has_log": false,
+            "is_link": false,
+            "properties": {
+                "id_module": {
+                    "comment": "identifier", "type": "integer", "required": true,
+                    "originalName":"id_module"
+                },
+                "id_person_owner": {
+                    "comment": "owner link", "type": "integer", "required": false,
+                    "originalName":"id_person_owner"
+                },
+                "name": {
+                    "originalName":"name",
+                    "comment": "\u041d\u0430\u0438\u043c\u0435\u043d\u043e\u0432\u0430\u043d\u0438\u0435",
+                    "type": "string",
+                    "required": false
+                },
+                "type":{
+                    "type":"string",
+                    "comment":"Comment",
+                    "originalName":null,
+                    "required": true
+                }
+            },
+            "references": [
+                {"destination": "person", "destination_alias": "owner", "properties": ["id_person_owner"]}
+            ]
+        },
+        "person_favorite_module_link": {
+            "originalName":"person_favorite_module_link",
+            "pk": ["id_module_favorite_module", "id_person", "v_end"],
+            "has_log": true,
+            "is_link": true,
+            "properties": {
+                "id_module_favorite_module": {
+                    "originalName":"id_module_favorite_module",
+                    "comment": "favorite_module link",
+                    "type": "integer",
+                    "required": true
+                },
+                "id_person": {
+                    "comment": "person link", "type": "integer", "required": true,
+                    "originalName":"id_person"
+                },
+                "v_end": {
+                    "comment": null, "type": "datetime", "required": true,
+                    "originalName":"v_end"
+                },
+                "ratings": {
+                    "originalName":"rating",
+                    "comment": "\u0420\u0435\u0439\u0442\u0438\u043d\u0433",
+                    "type": "integer",
+                    "required": false
+                },
+                "v_start": {
+                    "comment": null, "type": "datetime", "required": true,
+                    "originalName":"v_start"
+                }
+            },
+            "references": [
+                {"destination": "person", "destination_alias": "person", "properties": ["id_person"]},
+                {
+                    "destination": "module",
+                    "destination_alias": "favorite_module",
+                    "properties": ["id_module_favorite_module"]
+                }
+            ]
+        },
+        "module_developer_link": {
+            "originalName":"module_developer_link",
+            "pk": ["id_module", "v_end"],
+            "has_log": true,
+            "is_link": true,
+            "properties": {
+                "id_module": {
+                    "comment": "module link", "type": "integer", "required": true,
+                    "originalName":"id_module"
+                },
+                "v_end": {
+                    "comment": null, "type": "datetime", "required": true,
+                    "originalName":"v_end"
+                },
+                "v_start": {
+                    "comment": null, "type": "datetime", "required": true,
+                    "originalName": "v_start"
+                }
+            },
+            "references": [
+                {"destination": "module", "destination_alias": "module", "properties": ["id_module"]}
+            ]
+        },
+        "test": {
+            "originalName":null,
+            "pk":["id_test"],
+            "has_log": false,
+            "is_link": false,
+            "properties":{
+                "id_test":{
+                    "comment":"Comment",
+                    "type":"integer",
+                    "required":true,
+                    "originalName":null
+                }
+            },
+            "references": []
+        }
+}}

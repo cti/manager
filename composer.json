@@ -20,7 +20,8 @@
             "Controller\\" : "src/php/",
             "Direct\\" : "src/php/",
             "Module\\" : "src/php/",
-            "Project\\" : "src/php/"
+            "Project\\" : "src/php/",
+            "Migration\\" : "src/php/"
         }
     },    
     "authors": [
