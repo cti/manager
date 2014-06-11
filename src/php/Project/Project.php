@@ -46,4 +46,10 @@ class Project
         }
         return $this->schema;
     }
+
+    public function saveSchema($config)
+    {
+        $schema = $this->getSchema();
+        $newSchema = $this->application->getManager()->create("\\Project\\Schema", $config);
+    }
 }

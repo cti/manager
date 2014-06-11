@@ -39,7 +39,7 @@ class Property
         $this->comment = $config['comment'];
         $this->type = $config['type'];
         $this->primary = !empty($config['primary']);
-        $this->notNull = !empty($config['notNull']);
+        $this->notNull = !empty($config['required']);
         $this->foreign = !empty($config['foreign']);
     }
 

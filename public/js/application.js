@@ -33,7 +33,16 @@ Ext.define('Manager.Project.Models.Editor.Grid', {
         xtype: 'checkcolumn',
         header: 'PK',
         dataIndex: 'pk',
-        width: 40
+        width: 40,
+        listeners: {
+          checkchange: function(self, rowIndex, checked) {
+            var record;
+            if (checked) {
+              record = _this.store.getAt(rowIndex);
+              return record.set('notNull', true);
+            }
+          }
+        }
       }, {
         xtype: 'booleancolumn',
         header: 'FK',
@@ -45,7 +54,16 @@ Ext.define('Manager.Project.Models.Editor.Grid', {
         xtype: 'checkcolumn',
         header: 'Not null',
         dataIndex: 'notNull',
-        width: 80
+        width: 80,
+        listeners: {
+          beforecheckchange: function(self, rowIndex) {
+            var record;
+            record = _this.store.getAt(rowIndex);
+            if (record.data.pk) {
+              return false;
+            }
+          }
+        }
       }, {
         header: 'Type',
         dataIndex: 'type',
@@ -402,6 +420,7 @@ Ext.define('Manager.Project.Card', {
     align: 'stretch'
   },
   initComponent: function() {
+    var _this = this;
     this.title = this.project.data.nick + " card";
     this.items = [
       this.getModelsGrid(), {
@@ -414,6 +433,11 @@ Ext.define('Manager.Project.Card', {
         type: 'prev',
         callback: function() {
           return mngr.app.openProjectList();
+        }
+      }, {
+        type: 'save',
+        callback: function() {
+          return _this.saveSchema();
         }
       }
     ];
@@ -435,6 +459,9 @@ Ext.define('Manager.Project.Card', {
       });
     }
     return this.modelsGrid;
+  },
+  saveSchema: function() {
+    return Project.saveSchema(this.project.data.nick, this.schema);
   }
 });
 

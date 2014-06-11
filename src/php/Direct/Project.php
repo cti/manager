@@ -33,16 +33,17 @@ class Project
         return $this->manager->addProject($data->nick, $path);
     }
 
-    public function getModels($projectNick)
-    {
-        $project = $this->manager->getProject($projectNick);
-        return $project->getSchema()->getModels();
-    }
-
     public function getSchema($projectNick)
     {
         $project = $this->manager->getProject($projectNick);
         return $project->getSchema()->asArray();
+    }
+
+    public function saveSchema($projectNick, $schemaObject)
+    {
+        $schemaObject = json_decode(json_encode($schemaObject), true);
+        $project = $this->manager->getProject($projectNick);
+        $project->saveSchema($schemaObject);
     }
 
 

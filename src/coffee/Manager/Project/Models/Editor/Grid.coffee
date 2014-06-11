@@ -30,6 +30,11 @@ Ext.define 'Manager.Project.Models.Editor.Grid',
       header: 'PK'
       dataIndex: 'pk'
       width: 40
+      listeners:
+        checkchange: (self, rowIndex, checked) =>
+          if checked
+            record = @store.getAt rowIndex
+            record.set('notNull', true)
     ,
       xtype: 'booleancolumn'
       header: 'FK'
@@ -42,6 +47,11 @@ Ext.define 'Manager.Project.Models.Editor.Grid',
       header: 'Not null'
       dataIndex: 'notNull'
       width: 80
+      listeners:
+        beforecheckchange: (self, rowIndex) =>
+          record = @store.getAt rowIndex
+          if record.data.pk
+            return false
     ,
       header: 'Type'
       dataIndex: 'type'

@@ -17,6 +17,10 @@ Ext.define 'Manager.Project.Card',
       type: 'prev'
       callback: ->
         mngr.app.openProjectList()
+    ,
+      type: 'save'
+      callback: =>
+        @saveSchema()
     ]
     @callParent arguments
     mngr.project = this
@@ -32,3 +36,6 @@ Ext.define 'Manager.Project.Card',
       @modelsGrid = Ext.create 'Manager.Project.Models',
         width: 300
     @modelsGrid
+
+  saveSchema: ->
+    Project.saveSchema @project.data.nick, @schema
