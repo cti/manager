@@ -4,7 +4,6 @@ class GeneratorTest extends \PHPUnit_Framework_TestCase
 {
     public function testMigrationTest()
     {
-        $this->markTestSkipped();
         $application = getApplication();
         $fenom = $application->getFenom();
         $fenom->addSource(
@@ -15,7 +14,9 @@ class GeneratorTest extends \PHPUnit_Framework_TestCase
         $template = $fenom->render('migration', array(
             'difference' => $difference,
         ));
-        echo $template;
+        $correctMigration = $this->getCorrectMigration();
+        $this->assertEquals($correctMigration, $template);
+
     }
 
     protected function getDifference()
@@ -28,5 +29,12 @@ class GeneratorTest extends \PHPUnit_Framework_TestCase
         ));
         return $diffTool->getDiff();
     }
+
+    protected function getCorrectMigration()
+    {
+        $correctMigrationPath = getApplication()->getProject()->getPath('resources correctMigration.php');
+        return file_get_contents($correctMigrationPath);
+    }
+
 
 } 
