@@ -51,7 +51,6 @@ class Diff
     {
         foreach($this->from->getModels() as $name => $fromModel) {
             if (!isset($this->originalNameLinks[$fromModel->getName()])) {
-                var_dump($fromModel->getName());
                 $this->differences[$fromModel->getName()] = array(
                     'action' => 'delete'
                 );
@@ -134,6 +133,9 @@ class Diff
             );
         }
         // check PK
+        if ($from->getPrimaryKey() != $to->getPrimaryKey()) {
+            $difference['pk'] = $to->getPrimaryKey();
+        }
     }
 
     protected function getPropertyDifference(\Project\Property $from, \Project\Property $to, &$difference)

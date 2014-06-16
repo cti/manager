@@ -3,7 +3,7 @@
 return array(
     'models' => array(
         "person" => array(
-            "action" => "pk_change",
+            "action" => null,
             "pk" => array("id_person", "v_end", "login"),
         ),
         "module" => array(
