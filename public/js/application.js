@@ -261,6 +261,7 @@ Ext.define('Manager.Project.Schema.Model', {
   constructor: function(config) {
     var propertyConfig, referenceConfig, _i, _j, _len, _len1, _ref, _ref1;
     this.name = config.name;
+    this.originalName = config.originalName;
     this.properties = {};
     this.pk = config.pk;
     this.references = [];
@@ -355,6 +356,7 @@ Ext.define('Manager.Project.Schema.Schema', {
     _ref = config.models;
     for (_i = 0, _len = _ref.length; _i < _len; _i++) {
       modelConfig = _ref[_i];
+      modelConfig.originalName = modelConfig.name;
       model = Ext.create('Manager.Project.Schema.Model', modelConfig);
       this.models[model.getName()] = model;
     }

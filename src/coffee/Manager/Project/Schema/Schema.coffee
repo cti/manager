@@ -2,6 +2,7 @@ Ext.define 'Manager.Project.Schema.Schema',
   constructor: (config) ->
     @models = {}
     for modelConfig in config.models
+      modelConfig.originalName = modelConfig.name
       model = Ext.create 'Manager.Project.Schema.Model', modelConfig
       @models[model.getName()] = model
     this

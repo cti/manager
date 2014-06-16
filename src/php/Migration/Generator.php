@@ -4,11 +4,19 @@ namespace Migration;
 class Generator
 {
     /**
-     * @param String $name
-     * @param array $difference
+     * @inject
+     * @var \Build\Application
      */
-    public function getMigrationCode($name, $difference)
-    {
+    protected $application;
 
+    /**
+     * @param array $difference
+     * @return string
+     */
+    public function getMigrationCode($difference)
+    {
+        return $this->application->getFenom()->render('migration', array(
+            'difference' => $difference
+        ));
     }
 } 

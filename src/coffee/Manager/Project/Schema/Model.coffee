@@ -1,6 +1,7 @@
 Ext.define 'Manager.Project.Schema.Model',
   constructor: (config) ->
     @name = config.name
+    @originalName = config.originalName
     @properties = {}
     @pk = config.pk
     @references = []

@@ -5,18 +5,20 @@ class GeneratorTest extends \PHPUnit_Framework_TestCase
     public function testMigrationTest()
     {
         $application = getApplication();
-        $fenom = $application->getFenom();
-        $fenom->addSource(
+        $difference = $this->getDifference();
+
+        $application->getFenom()->addSource(
             dirname($application->getProject()->getPath())
             . DIRECTORY_SEPARATOR . 'resources' . DIRECTORY_SEPARATOR . 'fenom'
         );
-        $difference = $this->getDifference();
-        $template = $fenom->render('migration', array(
-            'difference' => $difference,
-        ));
-        $correctMigration = $this->getCorrectMigration();
-        $this->assertEquals($correctMigration, $template);
+        /**
+         * @var \Migration\Generator $generator
+         */
+        $generator = $application->getManager()->get("\\Migration\\Generator");
+        $migration = $generator->getMigrationCode($difference);
 
+        $correctMigration = $this->getCorrectMigration();
+        $this->assertEquals($correctMigration, $migration);
     }
 
     protected function getDifference()

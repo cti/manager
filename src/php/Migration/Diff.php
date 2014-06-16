@@ -29,6 +29,12 @@ class Diff
      */
     protected $differences = array();
 
+    /**
+     * @inject
+     * @var \Migration\Generator
+     */
+    protected $generator;
+
     public function __construct($config)
     {
         /**
@@ -46,6 +52,12 @@ class Diff
             }
         }
     }
+
+    public function getMigrationCode()
+    {
+        return $this->generator->getMigrationCode($this->getDiff());
+    }
+
 
     public function getDiff()
     {
